@@ -1,0 +1,9 @@
+model,n_param,log_lik,aic,outcome
+Proportional Hazards,20,-3516.7745295784885,7073.549059156977,(3) PE (w/ or w/out DVT)
+Interaction with log(t),21,-3499.015571874594,7040.031143749188,(3) PE (w/ or w/out DVT)
+NCS with df = 1,21,-3512.7860060582366,7067.572012116473,(3) PE (w/ or w/out DVT)
+NCS with df = 2,22,-3506.352515873238,7056.705031746476,(3) PE (w/ or w/out DVT)
+NCS with df = 3,23,-3498.3111876845555,7042.622375369111,(3) PE (w/ or w/out DVT)
+NCS with df = 6,26,-3490.193234293285,7032.38646858657,(3) PE (w/ or w/out DVT)
+NCS with df = 8,28,-3487.1461443290987,7030.292288658197,(3) PE (w/ or w/out DVT)
+NCS with df = 10,30,-3486.6274702829282,7033.2549405658565,(3) PE (w/ or w/out DVT)

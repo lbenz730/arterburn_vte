@@ -1,0 +1,79 @@
+################################################################################
+########################## Dataset Notes #######################################
+################################################################################
+
+Luke Benz
+Created: 2022-12-14
+Updated: 2022-12-31
+
+* Each row is a unique subject (denoted by match_id) 
+* case_psid is a unique identifier that denotes that matched set 
+    * 1 subject undergoing bariatric surgery and > 1 match (up to 10)
+* All exclude_flag = 0
+    * Likely the case that Eric already removed anyone who needed to be excluded
+* No missing data in any important variable (i.e. NA may be informative of no event)
+    * Already dropped?
+
+* Exposure:
+    * bs_type: Type of surgery or control {RYGB, SLEEVE, CONTROL}
+    * surg_cont: Surgery or control {Matched, Surgery}
+
+* Outcomes: 
+    * First occurence of one of two VTE types:
+        * pe_date: Date of pulmonary embolism (first instance)
+        * dvt_date: Date of deep vein thrombosis (first instance)
+    * Secondardy analysis of incident DVT/PE (w/ or w/out concurrent DVT)
+    * Sensitivity Analysis variables
+        * anticoag_dvt: Anticoagulant within 1 week of DVT diagnosis
+        * anticoag_pe: Anticoagulant within 1 week of PE diagnosis
+        * anticoag_index: Anticoagulant use at index date
+        * anticoag_30: Anticoagulant use 30 days after follow up
+    
+* Observation time = time from index date to censoring date 
+    * obstime_censor = date_censor - index_date 
+    * End of study date: 2015-09-30 
+    * event_censor: Indicator of whether or not patient was censored
+    * obstime_censor_p: censoring w/ pregnancy as well;
+        min(date_censor, pregnancy_date) - index_date
+    * Some subjects have PE/DVT after censor date (I think this is due to their match being censored)
+    * Censor Reason (censor_reason) {Death, Enrollment, Study End} but there is also 
+      Pregnancy and cancer. Do we need to code this up?
+    * cancer_date
+    
+* Matching variables [ADJUST -- see Sjolander (2013, Statsitics in Medincine)]
+    * site: Site of surgery {GH, NC, SC} to reflect {KPWA, KPNC, KPSC}
+    * age: Age (matched w/in +/- 10 years)
+    * bmi: BMI closest to index date (+/- 5 BMI units)
+    * GENDER: {M, F}
+    * diabetes: {0,1} (SUPREME DM Diabetes definition)
+    * raceeth: Race/Ethnicifty {Black, Hispanic, Multiple, Other, Unknown, White}
+    * insulin: {0,1} Insulin use in prior year
+    * elix_cat: Elixhauser comorbidity index {-1, 0, 1, 2}
+    * util_count: # of days of health care use in 7-12 months pre-index date
+
+* Confounders:
+    * dysl: Dyslipidemia
+    * Smoking2: Smoking status {Ever, Self-Report; Never, Self-Report; No Self-Report}
+    * htn_dx: Hypertension (ICD-9)
+    * ht_index: Use of hormone therapy at index date
+    * oc_index: Use of oral contraceptive at index date
+    
+* Questions: 
+    1. Outcome indicator(s) for are represented by pe_date/dvt_date?
+    2. Why up to 10 matches?
+    3. Difference between bmi and bmi_max
+    4. Review correct variable mappings
+    5. Confirm that all exclusions have already been applied
+    6. 142 cases where dvt_date > pe_date -- what do we do about these cases?
+    7. Do dates represent ICD-9 code confirmation?
+    8. Some subjects have PE/DVT after censor date (I think this is due to their match being censored)
+    9. What data cleaning need to be done? 
+        * elix_cat doesn't align w/ defn
+        * censoring correct computation
+            * cancer?
+            * DVT then subsequent PE
+    10. What do we do about concominant PE (or after DVT) w/ DVT Only indicator #2
+    11. Censoring columns for 5 years but some patients have > 5 years of person time
+
+    
+** Number of days hospitalized in year prior to index date, mean (SD)?? **

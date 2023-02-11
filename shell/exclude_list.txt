@@ -1,0 +1,7 @@
+data/
+data/*
+*.sas7bdat
+*.DS_Store
+Rplots.pdf
+logs/
+logs/*
