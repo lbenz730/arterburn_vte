@@ -13,6 +13,7 @@ size <- 'small'
 
 ### Load Data
 df_vte <- load_vte_data()
+knots <- read_rds('models/knots.rds')
 
 ### Define Matching Variables + Confounders
 matching_vars <- 
@@ -56,11 +57,12 @@ model_1_ph <- coxph(Surv(time_1, status_1) ~ ., data = df_1)
 model_2_ph <- coxph(Surv(time_2, status_2) ~ ., data = df_2)
 model_3_ph <- coxph(Surv(time_3, status_3) ~ ., data = df_3)
 
-### Model Summaryies
+### Model Summaries
 if(size == 'small') {
   files <- dir('models/', full.names = T)
   model_files <- files[grepl('outcome.*_small.csv', files)]
   hr_files <- files[grepl('hr.*_small.csv', files)]
+  cov_files <- files[grepl('cov.*_small.rds', files)]
 }
 
 df_summary <- 
@@ -72,17 +74,29 @@ df_hr <-
   group_by(outcome) %>% 
   group_split()
 
+cov_mats <- 
+  map(cov_files, read_rds)
+
 ### Get Log[HR(t)]
 df_log_hr <- 
-  map2(df_hr, list(model_1_ph, model_2_ph, model_3_ph), extract_hr)
+  pmap(list(df_hr, list(model_1_ph, model_2_ph, model_3_ph), cov_mats), 
+       ~extract_hr(hr_summary = ..1,
+                   cox_ph = ..2,
+                   cov_mat = ..3,
+                   knots = knots))
 
 ### Model Fit Summary
-best_by_group <- 
+best_by_group_aic <- 
   mutate(df_summary, 'best' = aic == min(aic)) %>% 
   pull(best) %>% 
   which(.)
 
-gt_aic <- 
+best_by_group_bic <- 
+  mutate(df_summary, 'best' = bic == min(bic)) %>% 
+  pull(best) %>% 
+  which(.)
+
+gt_summary <- 
   df_summary %>% 
   gt() %>% 
   cols_align(align = "center", columns = everything()) %>%
@@ -97,13 +111,16 @@ gt_aic <-
               row_group.font.weight = 'bold',
               row_group.font.size  = 22) %>% 
   tab_style(style = list(cell_fill(color = "lightblue")), 
-            locations = cells_body(rows = best_by_group)) %>% 
+            locations = cells_body(rows = best_by_group_aic)) %>% 
+  tab_style(style = list(cell_fill(color = "orange")), 
+            locations = cells_body(rows = best_by_group_bic)) %>% 
   cols_label('model' = '',
              'n_param' = '# of Parameters',
              'log_lik' = 'Log-Likelihood',
+             'bic' = 'BIC',
              'aic' = 'AIC') 
 
-gtsave(gt_aic, 'figures/00_aic_table.png')
+gtsave(gt_summary, 'figures/00_model_summary_table.png')
 
 ### Plots ###
 ### For each model I fit 4 plots
@@ -161,6 +178,7 @@ ggsave('figures/03_survival_ph_by_surgery_1.png', height = 9/1.2, width = 16/1.2
 ggplot(df_log_hr[[1]], aes(x = time, y = log_hr)) + 
   facet_wrap(~model) + 
   geom_hline(yintercept = 0, lty = 2, col = 'black') + 
+  geom_ribbon(aes(ymin = log_hr - 1.96 * std_err, ymax = log_hr + 1.96 * std_err, fill = model), alpha = 0.1) +
   geom_line(aes(col = model)) + 
   labs(x = 'Time since Index Date (Days)',
        y = 'Surgery log[HR(t)]',
@@ -168,7 +186,7 @@ ggplot(df_log_hr[[1]], aes(x = time, y = log_hr)) +
        subtitle = 'First VTE Event') + 
   theme(legend.position = 'none')
 ggsave('figures/04_surgery_log_hr(t)_1.png', height = 9/1.2, width = 16/1.2)
-         
+
 
 ### (2) DVT (No PE) 
 ggsurvplot(survfit(Surv(time_2, status_2) ~ 1, data = df_2),
@@ -217,6 +235,7 @@ ggsave('figures/07_survival_ph_by_surgery_2.png', height = 9/1.2, width = 16/1.2
 ggplot(df_log_hr[[2]], aes(x = time, y = log_hr)) + 
   facet_wrap(~model) + 
   geom_hline(yintercept = 0, lty = 2, col = 'black') + 
+  geom_ribbon(aes(ymin = log_hr - 1.96 * std_err, ymax = log_hr + 1.96 * std_err, fill = model), alpha = 0.1) +
   geom_line(aes(col = model)) + 
   labs(x = 'Time since Index Date (Days)',
        y = 'Surgery log[HR(t)]',
@@ -272,6 +291,7 @@ ggsave('figures/11_survival_ph_by_surgery_3.png', height = 9/1.2, width = 16/1.2
 ggplot(df_log_hr[[3]], aes(x = time, y = log_hr)) + 
   facet_wrap(~model) + 
   geom_hline(yintercept = 0, lty = 2, col = 'black') + 
+  geom_ribbon(aes(ymin = log_hr - 1.96 * std_err, ymax = log_hr + 1.96 * std_err, fill = model), alpha = 0.1) +
   geom_line(aes(col = model)) + 
   labs(x = 'Time since Index Date (Days)',
        y = 'Surgery log[HR(t)]',
@@ -280,10 +300,10 @@ ggplot(df_log_hr[[3]], aes(x = time, y = log_hr)) +
   theme(legend.position = 'none')
 ggsave('figures/12_surgery_log_hr(t)_3.png', height = 9/1.2, width = 16/1.2)
 
-
 ggplot(bind_rows(df_log_hr), aes(x = time, y = log_hr)) + 
   facet_wrap(~model) + 
   geom_hline(yintercept = 0, lty = 2, col = 'black') + 
+  geom_ribbon(aes(ymin = log_hr - 1.96 * std_err, ymax = log_hr + 1.96 * std_err, fill = outcome), alpha = 0.1) +
   geom_line(aes(col = outcome)) + 
   labs(x = 'Time since Index Date (Days)',
        y = 'Surgery log[HR(t)]',
