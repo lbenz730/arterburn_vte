@@ -85,27 +85,27 @@ extract_hr <- function(hr_summary, cox_ph, cov_mat, knots) {
               beta = df_ncs6$estimate,
               Sigma = cov_mat[['NCS with df = 6']][df_ncs6$term, df_ncs6$term])
   
-  ### NCS df = 8
-  df_ncs8 <- 
-    hr_summary %>% 
-    filter(model == 'NCS with df = 8') %>% 
-    filter(grepl('surg_cont', term))
-  
-  out_ncs8 <- 
-    log_hr_se(X = cbind(matrix(rep(1, length(time))), ns(time, df = 8, knots = knots[['8']])),
-              beta = df_ncs8$estimate,
-              Sigma = cov_mat[['NCS with df = 8']][df_ncs8$term, df_ncs8$term])
-  
-  ### NCS df = 10
-  df_ncs10 <- 
-    hr_summary %>% 
-    filter(model == 'NCS with df = 10') %>% 
-    filter(grepl('surg_cont', term))
-  
-  out_ncs10 <- 
-    log_hr_se(X = cbind(matrix(rep(1, length(time))), ns(time, df = 10, knots = knots[['10']])),
-              beta = df_ncs10$estimate,
-              Sigma = cov_mat[['NCS with df = 10']][df_ncs10$term, df_ncs10$term])
+  # ### NCS df = 8
+  # df_ncs8 <- 
+  #   hr_summary %>% 
+  #   filter(model == 'NCS with df = 8') %>% 
+  #   filter(grepl('surg_cont', term))
+  # 
+  # out_ncs8 <- 
+  #   log_hr_se(X = cbind(matrix(rep(1, length(time))), ns(time, df = 8, knots = knots[['8']])),
+  #             beta = df_ncs8$estimate,
+  #             Sigma = cov_mat[['NCS with df = 8']][df_ncs8$term, df_ncs8$term])
+  # 
+  # ### NCS df = 10
+  # df_ncs10 <- 
+  #   hr_summary %>% 
+  #   filter(model == 'NCS with df = 10') %>% 
+  #   filter(grepl('surg_cont', term))
+  # 
+  # out_ncs10 <- 
+  #   log_hr_se(X = cbind(matrix(rep(1, length(time))), ns(time, df = 10, knots = knots[['10']])),
+  #             beta = df_ncs10$estimate,
+  #             Sigma = cov_mat[['NCS with df = 10']][df_ncs10$term, df_ncs10$term])
   
   df_log_hr <- 
     bind_rows(
@@ -114,13 +114,13 @@ extract_hr <- function(hr_summary, cox_ph, cov_mat, knots) {
       tibble('time' = time, 'log_hr' = out_ncs1$log_hr, 'std_err' = out_ncs1$std_err, 'model' = 'NCS with df = 1'),
       tibble('time' = time, 'log_hr' = out_ncs2$log_hr, 'std_err' = out_ncs2$std_err, 'model' = 'NCS with df = 2'),
       tibble('time' = time, 'log_hr' = out_ncs3$log_hr, 'std_err' = out_ncs3$std_err, 'model' = 'NCS with df = 3'),
-      tibble('time' = time, 'log_hr' = out_ncs6$log_hr, 'std_err' = out_ncs6$std_err, 'model' = 'NCS with df = 6'),
-      tibble('time' = time, 'log_hr' = out_ncs8$log_hr, 'std_err' = out_ncs8$std_err, 'model' = 'NCS with df = 8'),
-      tibble('time' = time, 'log_hr' = out_ncs10$log_hr, 'std_err' = out_ncs10$std_err, 'model' = 'NCS with df = 10')
+      tibble('time' = time, 'log_hr' = out_ncs6$log_hr, 'std_err' = out_ncs6$std_err, 'model' = 'NCS with df = 6')
+      # tibble('time' = time, 'log_hr' = out_ncs8$log_hr, 'std_err' = out_ncs8$std_err, 'model' = 'NCS with df = 8'),
+      # tibble('time' = time, 'log_hr' = out_ncs10$log_hr, 'std_err' = out_ncs10$std_err, 'model' = 'NCS with df = 10')
     ) %>% 
     mutate('outcome' = hr_summary$outcome[1]) %>% 
-    mutate('model' = fct_relevel(model, 'Proportional Hazards', 'Interaction with log(t)')) %>% 
-    mutate('model' = fct_relevel(model, 'NCS with df = 10', after = nlevels(model)-1))
+    mutate('model' = fct_relevel(model, 'Proportional Hazards', 'Interaction with log(t)'))
+    # mutate('model' = fct_relevel(model, 'NCS with df = 10', after = nlevels(model)-1))
   
   return(df_log_hr)
 }

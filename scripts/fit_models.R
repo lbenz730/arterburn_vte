@@ -51,8 +51,8 @@ formula_3 <-
 desc <- 
   c('Proportional Hazards', 'Interaction with log(t)', 
     'NCS with df = 1', 'NCS with df = 2', 
-    'NCS with df = 3', 'NCS with df = 6', 
-    'NCS with df = 8', 'NCS with df = 10')
+    'NCS with df = 3', 'NCS with df = 6')
+    # 'NCS with df = 8', 'NCS with df = 10')
 
 ### Knot Definitions
 times <- 
@@ -108,17 +108,17 @@ if(fit_id == 1) {
   cat('NS 6\n')
   model_1_ns6 <- coxph(formula_1, data = df_1, tt = function(x, t, ...) { x * ns(t, df = 6, knots = knots[['6']]) })
   gc()
-  cat('NS 8\n')
-  model_1_ns8 <- coxph(formula_1, data = df_1, tt = function(x, t, ...) { x * ns(t, df = 8, knots = knots[['8']]) })
-  gc()
-  cat('NS 10\n')
-  model_1_ns10 <- coxph(formula_1, data = df_1, tt = function(x, t, ...) { x * ns(t, df = 10, knots = knots[['10']]) })
-  gc()
+  # cat('NS 8\n')
+  # model_1_ns8 <- coxph(formula_1, data = df_1, tt = function(x, t, ...) { x * ns(t, df = 8, knots = knots[['8']]) })
+  # gc()
+  # cat('NS 10\n')
+  # model_1_ns10 <- coxph(formula_1, data = df_1, tt = function(x, t, ...) { x * ns(t, df = 10, knots = knots[['10']]) })
+  # gc()
   
   models_1 <- 
     list(model_1_ph, model_1_logt, model_1_ns1, 
-         model_1_ns2, model_1_ns3, model_1_ns6,
-         model_1_ns8, model_1_ns10)
+         model_1_ns2, model_1_ns3, model_1_ns6)
+         # model_1_ns8, model_1_ns10)
   
   ### Covariance matrices
   cov_1 <- 
@@ -182,18 +182,18 @@ if(fit_id == 1) {
   gc()
   cat('NS 6\n')
   model_2_ns6 <- coxph(formula_2, data = df_2, tt = function(x, t, ...) { x * ns(t, df = 6, knots = knots[['6']]) })
-  gc()
-  cat('NS 8\n')
-  model_2_ns8 <- coxph(formula_2, data = df_2, tt = function(x, t, ...) { x * ns(t, df = 8, knots = knots[['8']]) })
-  gc()
-  cat('NS 10\n')
-  model_2_ns10 <- coxph(formula_2, data = df_2, tt = function(x, t, ...) { x * ns(t, df = 10, knots = knots[['10']]) })
-  gc()
+  # gc()
+  # cat('NS 8\n')
+  # model_2_ns8 <- coxph(formula_2, data = df_2, tt = function(x, t, ...) { x * ns(t, df = 8, knots = knots[['8']]) })
+  # gc()
+  # cat('NS 10\n')
+  # model_2_ns10 <- coxph(formula_2, data = df_2, tt = function(x, t, ...) { x * ns(t, df = 10, knots = knots[['10']]) })
+  # gc()
   
   models_2 <- 
     list(model_2_ph, model_2_logt, model_2_ns1, 
-         model_2_ns2, model_2_ns3, model_2_ns6, 
-         model_2_ns8, model_2_ns10)
+         model_2_ns2, model_2_ns3, model_2_ns6)
+         # model_2_ns8, model_2_ns10)
   
   ### Covariance matrices
   cov_2 <- 
@@ -259,17 +259,17 @@ if(fit_id == 1) {
   cat('NS 6\n')
   model_3_ns6 <- coxph(formula_3, data = df_3, tt = function(x, t, ...) { x * ns(t, df = 6, knots = knots[['6']]) })
   gc()
-  cat('NS 8\n')
-  model_3_ns8 <- coxph(formula_3, data = df_3, tt = function(x, t, ...) { x * ns(t, df = 8, knots = knots[['8']]) })
-  gc()
-  cat('NS 10\n')
-  model_3_ns10 <- coxph(formula_3, data = df_3, tt = function(x, t, ...) { x * ns(t, df = 10, knots = knots[['10']]) })
-  gc()
+  # cat('NS 8\n')
+  # model_3_ns8 <- coxph(formula_3, data = df_3, tt = function(x, t, ...) { x * ns(t, df = 8, knots = knots[['8']]) })
+  # gc()
+  # cat('NS 10\n')
+  # model_3_ns10 <- coxph(formula_3, data = df_3, tt = function(x, t, ...) { x * ns(t, df = 10, knots = knots[['10']]) })
+  # gc()
   
   models_3 <- 
     list(model_3_ph, model_3_logt, model_3_ns1, 
-         model_3_ns2, model_3_ns3, model_3_ns6,
-         model_3_ns8, model_3_ns10)
+         model_3_ns2, model_3_ns3, model_3_ns6)
+         # model_3_ns8, model_3_ns10)
   
   ### Covariance matrices
   cov_3 <- 

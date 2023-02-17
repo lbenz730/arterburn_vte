@@ -9,7 +9,8 @@ library(broom)
 source('scripts/load_data.R')
 source('scripts/plot_helpers.R')
 
-size <- 'small'
+# size <- 'small'
+size <- 'full'
 
 ### Load Data
 df_vte <- load_vte_data()
@@ -63,6 +64,11 @@ if(size == 'small') {
   model_files <- files[grepl('outcome.*_small.csv', files)]
   hr_files <- files[grepl('hr.*_small.csv', files)]
   cov_files <- files[grepl('cov.*_small.rds', files)]
+} else {
+  files <- dir('models/', full.names = T)
+  model_files <- files[grepl('outcome.*\\d+_summary.csv', files)]
+  hr_files <- files[grepl('hr.*\\d+_summary.csv', files)]
+  cov_files <- files[grepl('cov.*\\d+.rds', files)]
 }
 
 df_summary <- 
@@ -309,6 +315,7 @@ ggplot(bind_rows(df_log_hr), aes(x = time, y = log_hr)) +
        y = 'Surgery log[HR(t)]',
        title = 'Log Hazard Ratio for Surgery Over Time',
        subtitle = 'Comparison by Outcome',
+       fill = 'Outcome',
        color = 'Outcome')
 ggsave('figures/13_surgery_log_hr(t)_all.png', height = 9/1.2, width = 16/1.2)
 

@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 #SBATCH -c 4 ## number of cores
-#SBATCH -t 0-08:00 ## amount of time in D-HH:MM
+#SBATCH -t 0-04:00 ## amount of time in D-HH:MM
 #SBATCH -p fasse_bigmem ## Partition to submit to
 #SBATCH --mem=400000 ## memory pool for all cores
 #SBATCH -o logs/log.stdout_%a ## STDOUT
