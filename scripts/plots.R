@@ -13,7 +13,7 @@ source('scripts/plot_helpers.R')
 size <- 'full'
 
 ### Load Data
-df_vte <- load_vte_data()
+df_vte <- load_vte_data(local = T)
 knots <- read_rds('models/knots.rds')
 
 ### Define Matching Variables + Confounders
@@ -186,9 +186,10 @@ ggplot(df_log_hr[[1]], aes(x = time, y = log_hr)) +
   geom_hline(yintercept = 0, lty = 2, col = 'black') + 
   geom_ribbon(aes(ymin = log_hr - 1.96 * std_err, ymax = log_hr + 1.96 * std_err, fill = model), alpha = 0.1) +
   geom_line(aes(col = model)) + 
+  scale_y_continuous(breaks = seq(-2, 4, 1), labels = function(x) { sprintf('%0.1f', exp(x)) }) +
   labs(x = 'Time since Index Date (Days)',
-       y = 'Surgery log[HR(t)]',
-       title = 'Log Hazard Ratio for Surgery Over Time',
+       y = 'Surgery HR(t)\n(Log Scale)',
+       title = 'Hazard Ratio for Surgery Over Time',
        subtitle = 'First VTE Event') + 
   theme(legend.position = 'none')
 ggsave('figures/04_surgery_log_hr(t)_1.png', height = 9/1.2, width = 16/1.2)
@@ -243,9 +244,10 @@ ggplot(df_log_hr[[2]], aes(x = time, y = log_hr)) +
   geom_hline(yintercept = 0, lty = 2, col = 'black') + 
   geom_ribbon(aes(ymin = log_hr - 1.96 * std_err, ymax = log_hr + 1.96 * std_err, fill = model), alpha = 0.1) +
   geom_line(aes(col = model)) + 
+  scale_y_continuous(breaks = seq(-2, 4, 1), labels = function(x) { sprintf('%0.1f', exp(x)) }) +
   labs(x = 'Time since Index Date (Days)',
-       y = 'Surgery log[HR(t)]',
-       title = 'Log Hazard Ratio for Surgery Over Time',
+       y = 'Surgery HR(t)\n(Log Scale)',
+       title = 'Hazard Ratio for Surgery Over Time',
        subtitle = 'DVT (w/out PE)') + 
   theme(legend.position = 'none')
 ggsave('figures/08_surgery_log_hr(t)_2.png', height = 9/1.2, width = 16/1.2)
@@ -299,9 +301,10 @@ ggplot(df_log_hr[[3]], aes(x = time, y = log_hr)) +
   geom_hline(yintercept = 0, lty = 2, col = 'black') + 
   geom_ribbon(aes(ymin = log_hr - 1.96 * std_err, ymax = log_hr + 1.96 * std_err, fill = model), alpha = 0.1) +
   geom_line(aes(col = model)) + 
+  scale_y_continuous(breaks = seq(-2, 4, 1), labels = function(x) { sprintf('%0.1f', exp(x)) }) +
   labs(x = 'Time since Index Date (Days)',
-       y = 'Surgery log[HR(t)]',
-       title = 'Log Hazard Ratio for Surgery Over Time',
+       y = 'Surgery HR(t)\n(Log Scale)',
+       title = 'Hazard Ratio for Surgery Over Time',
        subtitle = 'PE (w/ or w/out DVT)') + 
   theme(legend.position = 'none')
 ggsave('figures/12_surgery_log_hr(t)_3.png', height = 9/1.2, width = 16/1.2)
@@ -311,11 +314,26 @@ ggplot(bind_rows(df_log_hr), aes(x = time, y = log_hr)) +
   geom_hline(yintercept = 0, lty = 2, col = 'black') + 
   geom_ribbon(aes(ymin = log_hr - 1.96 * std_err, ymax = log_hr + 1.96 * std_err, fill = outcome), alpha = 0.1) +
   geom_line(aes(col = outcome)) + 
+  scale_y_continuous(breaks = seq(-2, 4, 1), labels = function(x) { sprintf('%0.1f', exp(x)) }) +
   labs(x = 'Time since Index Date (Days)',
-       y = 'Surgery log[HR(t)]',
-       title = 'Log Hazard Ratio for Surgery Over Time',
+       y = 'Surgery HR(t)\n(Log Scale)',
+       title = 'Hazard Ratio for Surgery Over Time',
        subtitle = 'Comparison by Outcome',
        fill = 'Outcome',
        color = 'Outcome')
 ggsave('figures/13_surgery_log_hr(t)_all.png', height = 9/1.2, width = 16/1.2)
+
+
+ggplot(bind_rows(df_log_hr) %>% filter(model == 'NCS with df = 6'), aes(x = time, y = log_hr)) + 
+  geom_hline(yintercept = 0, lty = 2, col = 'black') + 
+  geom_ribbon(aes(ymin = log_hr - 1.96 * std_err, ymax = log_hr + 1.96 * std_err, fill = outcome), alpha = 0.1) +
+  geom_line(aes(col = outcome)) + 
+  scale_y_continuous(breaks = seq(-2, 4, 1), labels = function(x) { sprintf('%0.1f', exp(x)) }) +
+  labs(x = 'Time since Index Date (Days)',
+       y = 'Surgery HR(t)\n(Log Scale)',
+       title = 'Hazard Ratio for Surgery Over Time',
+       subtitle = 'Comparison by Outcome',
+       fill = 'Outcome',
+       color = 'Outcome')
+ggsave('figures/14_surgery_hr(t)_best.png', height = 9/1.2, width = 16/1.2)
 

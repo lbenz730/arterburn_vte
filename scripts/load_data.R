@@ -1,10 +1,13 @@
 library(tidyverse)
 library(haven)
 
-load_vte_data  <- function() {
+load_vte_data  <- function(local = F) {
   ### Read in SAS data file
-  # df_vte <- read_sas('~/Dropbox (Harvard University)/Haneuse/DURABLE/vte_data.sas7bdat')
-  df_vte <- read_sas('data/vte_data.sas7bdat')
+  if(local) {
+    df_vte <- read_sas('~/Dropbox (Harvard University)/Haneuse/DURABLE/vte_data.sas7bdat')
+  } else {
+    df_vte <- read_sas('data/vte_data.sas7bdat')
+  }
   
   ### Define Matching Variables + Confounders
   matching_vars <- 
