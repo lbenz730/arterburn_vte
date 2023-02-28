@@ -13,4 +13,4 @@ export R_LIBS_USER=$HOME/apps/R_4.1.0:$R_LIBS_USER
 
 cd $HOME/arterburn_vte
 
-Rscript scripts/fit_models.R $SLURM_ARRAY_TASK_ID small
+Rscript scripts/fit_models.R $SLURM_ARRAY_TASK_ID $* small

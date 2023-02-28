@@ -30,30 +30,48 @@ load_vte_data  <- function(local = F) {
     mutate('surg_cont' = as.numeric(surg_cont == 'Surgery')) %>% 
     mutate('raceeth' = case_when(raceeth == 'Multiple' ~ 'Other',
                                  T ~ raceeth)) %>% 
+    mutate('bmi_over_50' = as.numeric(bmi >= 50),
+           'age_over_65' = as.numeric(age >= 65)) %>% 
     mutate('date_censor_v1' = pmin(pregnancy_date, cancer_date, eos_date, enr_end396, deathdt, na.rm = T)) %>% ### 4052 events
     mutate('date_censor_v2' = pmin(pregnancy_date, eos_date, enr_end396, deathdt, na.rm = T)) %>% ### 4636 events 
-    mutate('date_censor_v3' = pmin(eos_date, enr_end396, deathdt, na.rm = T)) %>% ### 4692 events
+    mutate('date_censor_v3' = pmin(eos_date, enr_end396, deathdt, na.rm = T))  ### 4692 events
+  
+  ### If not sensitivy, just use PE/DVT Dates in the status definitions
+  df_vte <- 
+    df_vte %>% 
     mutate('status_1' = case_when(!is.na(dvt_date) & dvt_date <= date_censor_v1 ~ 1,
                                   !is.na(pe_date) & pe_date <= date_censor_v1 ~ 1,
                                   is.na(dvt_date) & is.na(pe_date) ~ 0,
                                   !is.na(dvt_date) & dvt_date > date_censor_v1 ~ 0,
                                   !is.na(pe_date) & pe_date > date_censor_v1 ~ 0),
-           'status_2' = case_when(!is.na(dvt_date) & dvt_date <= date_censor_v1 & is.na(pe_date) ~ 1,
-                                  !is.na(dvt_date) & dvt_date <= date_censor_v1 & !is.na(pe_date) & pe_date > date_censor_v1 ~ 1,
-                                  is.na(dvt_date) & is.na(pe_date) ~ 0,
-                                  is.na(dvt_date) ~ 0,
-                                  !is.na(dvt_date) & dvt_date > date_censor_v1 ~ 0,
-                                  !is.na(pe_date) ~ 0),
+           # 'status_2' = case_when(!is.na(dvt_date) & dvt_date <= date_censor_v1 & is.na(pe_date) ~ 1,
+           #                        !is.na(dvt_date) & dvt_date <= date_censor_v1 & !is.na(pe_date) & pe_date > date_censor_v1 ~ 1,
+           #                        is.na(dvt_date) & is.na(pe_date) ~ 0,
+           #                        is.na(dvt_date) ~ 0,
+           #                        !is.na(dvt_date) & dvt_date > date_censor_v1 ~ 0,
+           #                        !is.na(pe_date) ~ 0),
            'status_3' = case_when(is.na(pe_date) ~ 0,
                                   !is.na(pe_date) & pe_date > date_censor_v1 ~ 0,
                                   !is.na(pe_date) & pe_date <= date_censor_v1 ~ 1)) %>% 
     mutate('time_1' = case_when(status_1 == 0 ~ as.numeric(date_censor_v1 - index_date),
                                 status_1 == 1 ~ pmin(as.numeric(dvt_date - index_date),
                                                      as.numeric(pe_date - index_date), na.rm = T)),
-           'time_2' = case_when(status_2 == 0 ~ as.numeric(date_censor_v1 - index_date),
-                                status_2 == 1 ~ as.numeric(dvt_date - index_date)),
+           # 'time_2' = case_when(status_2 == 0 ~ as.numeric(date_censor_v1 - index_date),
+           #                      status_2 == 1 ~ as.numeric(dvt_date - index_date)),
            'time_3' = case_when(status_3 == 0 ~ as.numeric(date_censor_v1 - index_date),
-                                status_3 == 1 ~ as.numeric(pe_date - index_date))) 
+                                status_3 == 1 ~ as.numeric(pe_date - index_date))) %>% 
+    mutate('status_1_sens' = case_when(anticoag_pe == 1 ~ 1,
+                                       anticoag_dvt == 1 ~ 1,
+                                       T ~ 0),
+           'status_3_sens' = case_when(anticoag_pe == 1 ~ 1,
+                                       T ~ 0)) %>% 
+    mutate('time_1_sens' = case_when(status_1 == 0 ~ as.numeric(date_censor_v1 - index_date),
+                                     status_1 == 1  & anticoag_pe == 0 ~ as.numeric(dvt_date - index_date),
+                                     status_1 == 1  & anticoag_dvt == 0 ~ as.numeric(pe_date - index_date),
+                                     status_1 == 1 & anticoag_dvt == 1 & anticoag_pe == 1 ~ pmin(as.numeric(dvt_date - index_date),
+                                                                                                 as.numeric(pe_date - index_date), na.rm = T)),
+           'time_3_sens' = case_when(status_3 == 0 ~ as.numeric(date_censor_v1 - index_date),
+                                     status_3 == 1 ~ as.numeric(pe_date - index_date)))
   
   return(df_vte)
 }
