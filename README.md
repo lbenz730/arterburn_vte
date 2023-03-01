@@ -10,6 +10,7 @@ Code/Figures for VTE survival analysis for bariatric surgery with David Arterbur
 * __plots_basic.R__: KM Curves
 * __plots_models.R__: Plots of $\log(HR(t))$ for `surg_cont`
 * __table_1.R__: Function to produce table_1 word document (Table 1.docx)
+* __table_2.R__: Script to generate table_2 (table_2.png)
 * __vte_data_exploration.R__: Exploratory analysis
 * __img_to_pdf.R__: Function to gather image files and combine them all as PDF
 

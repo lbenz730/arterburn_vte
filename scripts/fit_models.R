@@ -32,7 +32,7 @@ time_vars <-
 formula_vars <- c('time_1', 'time_1_sens', 'status_1', 'status_1_sens',
                   'time_3', 'time_3_sens', 'status_3', 'status_3_sens')
 
-if(analysis != 'sensitivy') {
+if(analysis != 'sensitivity') {
   outcome_1 <- c('time_1', 'status_1') 
   outcome_3 <- c('time_3', 'status_3') 
 } else {
@@ -47,6 +47,7 @@ if(!dir.exists(glue('models/{analysis}'))) {
 }
 
 if(analysis == 'main') {
+  cat('Main Analysis\n')
   formula_1 <- 
     as.formula(Surv(time_1, status_1) ~ 
                  surg_cont + tt(surg_cont) + 
@@ -66,6 +67,7 @@ if(analysis == 'main') {
     as.formula(Surv(time_3, status_3) ~ .)
   
 } else if(analysis == 'sensitivity') {
+  cat('Sensitiviy\n')
   formula_1 <- 
     as.formula(Surv(time_1_sens, status_1_sens) ~ 
                  surg_cont + tt(surg_cont) + 
@@ -84,6 +86,7 @@ if(analysis == 'main') {
   cox_formula_3 <- 
     as.formula(Surv(time_3_sens, status_3_sens) ~ .)
 } else if(analysis == 'hte_bmi') {
+  cat('HTE BMI Secondary\n')
   confounders <- c(confounders, 'bmi_over_50')
   
   formula_1 <- 
@@ -104,9 +107,10 @@ if(analysis == 'main') {
                  elix_cat + util_count + dysl + Smoking2 + htn_dx + ht_index + oc_index)
   
   cox_formula_3 <- 
-    as.formula(Surv(time_1, status_1) ~ surg_cont + bmi_over_50:surg_cont + .)
+    as.formula(Surv(time_3, status_3) ~ surg_cont + bmi_over_50:surg_cont + .)
   
 } else if(analysis == 'hte_age') {
+  cat('HTE Age Secondary\n')
   confounders <- c(confounders, 'age_over_65')
   
   formula_1 <- 
@@ -117,7 +121,7 @@ if(analysis == 'main') {
                  elix_cat + util_count + dysl + Smoking2 + htn_dx + ht_index + oc_index)
   
   cox_formula_1 <- 
-    as.formula(Surv(time_1, status_1) ~ surg_cont + bmi_over_50:surg_cont + .)
+    as.formula(Surv(time_1, status_1) ~ surg_cont + age_over_65:surg_cont + .)
   
   formula_3 <- 
     as.formula(Surv(time_3, status_3) ~ 
@@ -127,8 +131,53 @@ if(analysis == 'main') {
                  elix_cat + util_count + dysl + Smoking2 + htn_dx + ht_index + oc_index)
   
   cox_formula_3 <- 
-    as.formula(Surv(time_1, status_1) ~ surg_cont + age_over_65:surg_cont + .)
+    as.formula(Surv(time_3, status_3) ~ surg_cont + age_over_65:surg_cont + .)
   
+} else if(analysis == 'hte_sex') {
+  cat('HTE Sex Secondary\n')
+  formula_1 <- 
+    as.formula(Surv(time_1, status_1) ~ 
+                 surg_cont + tt(surg_cont) + 
+                 GENDER:surg_cont + GENDER:tt(surg_cont) + 
+                 site + age + bmi + GENDER + diabetes + raceeth + insulin + 
+                 elix_cat + util_count + dysl + Smoking2 + htn_dx + ht_index + oc_index)
+  
+  cox_formula_1 <- 
+    as.formula(Surv(time_1, status_1) ~ surg_cont + GENDER:surg_cont + .)
+  
+  formula_3 <- 
+    as.formula(Surv(time_3, status_3) ~ 
+                 surg_cont + tt(surg_cont) + 
+                 GENDER:surg_cont + GENDER:tt(surg_cont) + 
+                 site + age + bmi + GENDER + diabetes + raceeth + insulin + 
+                 elix_cat + util_count + dysl + Smoking2 + htn_dx + ht_index + oc_index)
+  
+  cox_formula_3 <- 
+    as.formula(Surv(time_3, status_3) ~ surg_cont + GENDER:surg_cont + .)
+} else if(analysis == 'hte_race') {
+  cat('HTE Race Secondary\n')
+  confounders <- c(confounders, 'raceeth_fine')
+  matching_vars <- matching_vars[matching_vars != 'raceeth']
+  
+  formula_1 <- 
+    as.formula(Surv(time_1, status_1) ~ 
+                 surg_cont + tt(surg_cont) + 
+                 raceeth_fine:surg_cont + raceeth_fine:tt(surg_cont) + 
+                 site + age + bmi + GENDER + diabetes + insulin + 
+                 elix_cat + util_count + dysl + Smoking2 + htn_dx + ht_index + oc_index)
+  
+  cox_formula_1 <- 
+    as.formula(Surv(time_1, status_1) ~ surg_cont + raceeth_fine:surg_cont + .)
+  
+  formula_3 <- 
+    as.formula(Surv(time_3, status_3) ~ 
+                 surg_cont + tt(surg_cont) + 
+                 raceeth_fine:surg_cont + raceeth_fine:tt(surg_cont) + 
+                 site + age + bmi + GENDER + diabetes + insulin + 
+                 elix_cat + util_count + dysl + Smoking2 + htn_dx + ht_index + oc_index)
+  
+  cox_formula_3 <- 
+    as.formula(Surv(time_3, status_3) ~ surg_cont + raceeth_fine:surg_cont + .)
 }
 
 ### Model Descriptions
@@ -136,8 +185,7 @@ desc <-
   c('Proportional Hazards', 'Interaction with log(t)', 
     'NCS with df = 1', 'NCS with df = 2', 
     'NCS with df = 3', 'NCS with df = 4',
-    'NCS with df = 5', 'NCS with df = 6',
-    'NCS with df = 7', 'NCS with df = 8')
+    'NCS with df = 5', 'NCS with df = 6')
 
 ### Knot Definitions
 times <- 
@@ -198,18 +246,12 @@ if(fit_id == 1) {
   cat('NS 6\n')
   model_1_ns6 <- coxph(formula_1, data = df_1, tt = function(x, t, ...) { x * ns(t, df = 6, knots = knots[['6']]) })
   gc()
-  cat('NS 7\n')
-  model_1_ns7 <- coxph(formula_1, data = df_1, tt = function(x, t, ...) { x * ns(t, df = 7, knots = knots[['7']]) })
-  gc()
-  cat('NS 8\n')
-  model_1_ns8 <- coxph(formula_1, data = df_1, tt = function(x, t, ...) { x * ns(t, df = 8, knots = knots[['8']]) })
-  gc()
+
   
   models_1 <- 
     list(model_1_ph, model_1_logt, model_1_ns1, 
          model_1_ns2, model_1_ns3, model_1_ns4,
-         model_1_ns5, model_1_ns6, model_1_ns7,
-         model_1_ns8)
+         model_1_ns5, model_1_ns6)
   
   
   ### Covariance matrices
@@ -272,26 +314,19 @@ if(fit_id == 1) {
   model_3_ns3 <- coxph(formula_3, data = df_3, tt = function(x, t, ...) { x * ns(t, df = 3, knots = knots[['3']]) })
   gc()
   cat('NS 4\n')
-  model_3_ns4 <- coxph(formula_3, data = df_3, tt = function(x, t, ...) { x * ns(t, df = 4, knots = knots[['2']]) })
+  model_3_ns4 <- coxph(formula_3, data = df_3, tt = function(x, t, ...) { x * ns(t, df = 4, knots = knots[['4']]) })
   gc()
   cat('NS 5\n')
-  model_3_ns5 <- coxph(formula_3, data = df_3, tt = function(x, t, ...) { x * ns(t, df = 5, knots = knots[['3']]) })
+  model_3_ns5 <- coxph(formula_3, data = df_3, tt = function(x, t, ...) { x * ns(t, df = 5, knots = knots[['5']]) })
   gc()
   cat('NS 6\n')
   model_3_ns6 <- coxph(formula_3, data = df_3, tt = function(x, t, ...) { x * ns(t, df = 6, knots = knots[['6']]) })
   gc()
-  cat('NS 7\n')
-  model_3_ns7 <- coxph(formula_3, data = df_3, tt = function(x, t, ...) { x * ns(t, df = 7, knots = knots[['7']]) })
-  gc()
-  cat('NS 8\n')
-  model_3_ns8 <- coxph(formula_3, data = df_3, tt = function(x, t, ...) { x * ns(t, df = 8, knots = knots[['8']]) })
-  gc()
-  
+ 
   models_3 <- 
     list(model_3_ph, model_3_logt, model_3_ns1, 
          model_3_ns2, model_3_ns3, model_3_ns4,
-         model_3_ns5, model_3_ns6, model_3_ns7,
-         model_3_ns8)
+         model_3_ns5, model_3_ns6)
   
   
   ### Covariance matrices
