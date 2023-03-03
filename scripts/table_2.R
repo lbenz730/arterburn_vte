@@ -38,7 +38,7 @@ df_summary_sens <-
 
 ### Hazard Ratio @ 1 and 5 Years
 hr_best <- 
-  get_hr_best(size = 'small',
+  get_hr_best(size = 'full',
               analysis = 'main',
               eval_times = round(365.25 * c(1, 5)),
               knots = knots) %>% 
@@ -58,7 +58,7 @@ df_summary <-
   inner_join(hr_best, by = 'outcome')
 
 hr_best_sens <- 
-  get_hr_best(size = 'small',
+  get_hr_best(size = 'full',
               analysis = 'sensitivity',
               eval_times = round(365.25 * c(1, 5)),
               knots = knots) %>% 
@@ -95,7 +95,7 @@ table_2 <-
   tab_spanner(columns = ends_with('_5'), label = '5 Years Post Index Date') %>% 
   fmt_number(columns = c('rate'), decimals = 3, sep_mark = '') %>% 
   fmt_number(columns = c('hr_1', 'hr_5'), decimals = 2, sep_mark = '') %>% 
-  fmt_number(columns = c('p_value_1', 'p_value_5'), sep_mark = '', n_sigfig = 2) %>% 
+  fmt_number(columns = c('p_value_1', 'p_value_5'), sep_mark = '', decimals = 3) %>% 
   fmt_number(columns = c('person_years', 'n_events'), sep_mark = ',', decimals = 0, drop_trailing_zeros = T) %>% 
   tab_options(column_labels.font.size = 16,
               heading.title.font.size = 20,

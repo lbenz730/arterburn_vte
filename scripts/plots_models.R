@@ -233,41 +233,41 @@ model_plots <- function(size, analysis,
 }
 
 ### Main Analysis
-model_plots(size = 'small', 
+model_plots(size = 'full', 
             analysis = 'main', 
             interaction = F,
             sub_title = 'Primary Analysis: VTE Defined Using ICD-9 Codes')
 
 ### Sensitivity Analysis
-model_plots(size = 'small', 
+model_plots(size = 'full', 
             analysis = 'sensitivity',
             interaction = F,
             sub_title = 'Sensitivy Analysis: VTE Defined Using ICD-9 Codes and Anticoagulation Prescription Fill')
 
 ### Secondary Analyses 
 ### (BMI)
-model_plots(size = 'small',
+model_plots(size = 'full',
             analysis = 'hte_bmi',
             interaction = T, 
             interaction_labs = c('BMI < 50', 'BMI >= 50'),
             sub_title = 'Secondary Analyis: Treatment Effect Heterogenity by Baseline BMI')
 
 ### (Age) 
-model_plots(size = 'small',
+model_plots(size = 'full',
             analysis = 'hte_age',
             interaction = T, 
             interaction_labs = c('Age < 65', 'Age >= 65'),
             sub_title = 'Secondary Analyis: Treatment Effect Heterogenity by Baseline Age')
 
 ### (Sex) 
-model_plots(size = 'small',
+model_plots(size = 'full',
             analysis = 'hte_sex',
             interaction = T, 
             interaction_labs = c('Female', 'Male'),
             sub_title = 'Secondary Analyis: Treatment Effect Heterogenity by Sex')
 
 ### (Raceeth) 
-model_plots(size = 'small',
+model_plots(size = 'full',
             analysis = 'hte_race',
             interaction = T, 
             interaction_labs = c('Non-Hispanic Black', 'Hispanic', 'Other/Unknown', 'Non-Hispanic White'),
