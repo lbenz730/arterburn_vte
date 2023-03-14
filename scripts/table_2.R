@@ -5,10 +5,10 @@ library(splines)
 source('scripts/load_data.R')
 source('scripts/plot_helpers.R')
 
-
 ### Event Rates 
 df_vte <- load_vte_data()
 knots <- read_rds('models/knots.rds')
+knots_sens <- read_rds('models/knots_sens.rds')
 
 df_event_rate <- 
   bind_rows(select(df_vte, 'time' = time_1, 'event' = status_1) %>% mutate(outcome = 'Any VTE'),
@@ -61,7 +61,7 @@ hr_best_sens <-
   get_hr_best(size = 'full',
               analysis = 'sensitivity',
               eval_times = round(365.25 * c(1, 5)),
-              knots = knots) %>% 
+              knots = knots_sens) %>% 
   mutate('hr' = exp(log_hr), 
          'lower' = exp(log_hr - 1.96 * std_err),
          'upper' = exp(log_hr + 1.96 * std_err),

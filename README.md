@@ -13,6 +13,7 @@ Code/Figures for VTE survival analysis for bariatric surgery with David Arterbur
 * __table_2.R__: Script to generate table_2 (table_2.png)
 * __vte_data_exploration.R__: Exploratory analysis
 * __img_to_pdf.R__: Function to gather image files and combine them all as PDF
+* __hte_likelihood_ratio_tests.R__: Conduct LRT to explore heterogeneous treatment effects
 
 # Models (`models/`)
 

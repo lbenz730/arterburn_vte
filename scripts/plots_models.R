@@ -19,7 +19,11 @@ model_plots <- function(size, analysis,
   
   ### Load Data
   df_vte <- load_vte_data(local = F)
-  knots <- read_rds('models/knots.rds')
+  if(analysis != 'sensitivity') {
+    knots <- read_rds('models/knots.rds')
+  } else {
+    knots <- read_rds('models/knots_sens.rds')
+  }
   
   ### Define Matching Variables + Confounders
   matching_vars <- 

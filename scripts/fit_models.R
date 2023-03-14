@@ -156,29 +156,26 @@ if(analysis == 'main') {
     as.formula(Surv(time_3, status_3) ~ surg_cont + GENDER:surg_cont + .)
 } else if(analysis == 'hte_race') {
   cat('HTE Race Secondary\n')
-  confounders <- c(confounders, 'raceeth_fine')
-  matching_vars <- matching_vars[matching_vars != 'raceeth']
-  
   formula_1 <- 
     as.formula(Surv(time_1, status_1) ~ 
                  surg_cont + tt(surg_cont) + 
-                 raceeth_fine:surg_cont + raceeth_fine:tt(surg_cont) + 
-                 site + age + bmi + GENDER + diabetes + insulin + 
+                 raceeth:surg_cont + raceeth:tt(surg_cont) + 
+                 site + age + bmi + GENDER + diabetes + insulin + raceeth +
                  elix_cat + util_count + dysl + Smoking2 + htn_dx + ht_index + oc_index)
   
   cox_formula_1 <- 
-    as.formula(Surv(time_1, status_1) ~ surg_cont + raceeth_fine:surg_cont + .)
+    as.formula(Surv(time_1, status_1) ~ surg_cont + raceeth:surg_cont + .)
   
   formula_3 <- 
     as.formula(Surv(time_3, status_3) ~ 
                  surg_cont + tt(surg_cont) + 
-                 raceeth_fine:surg_cont + raceeth_fine:tt(surg_cont) + 
-                 site + age + bmi + GENDER + diabetes + insulin + 
+                 raceeth:surg_cont + raceeth:tt(surg_cont) + 
+                 site + age + bmi + GENDER + diabetes + insulin + raceeth + 
                  elix_cat + util_count + dysl + Smoking2 + htn_dx + ht_index + oc_index)
   
   cox_formula_3 <- 
-    as.formula(Surv(time_3, status_3) ~ surg_cont + raceeth_fine:surg_cont + .)
-}
+    as.formula(Surv(time_3, status_3) ~ surg_cont + raceeth:surg_cont + .)
+} 
 
 ### Model Descriptions
 desc <- 
@@ -188,21 +185,39 @@ desc <-
     'NCS with df = 5', 'NCS with df = 6')
 
 ### Knot Definitions
-times <- 
-  df_vte %>% 
-  filter(status_1 == 1, surg_cont == 1) %>% 
-  pull(time_1)
-
-### Quantiles on the time scale of when events are happening
-knots <- 
-  map(c(2:8), ~{
-    probs <- seq(0, 1, length.out = .x + 1)
-    probs <- probs[probs > 0 & probs < 1]
-    quantile(times, probs)
-  })
-names(knots) <- as.character(2:8)
-
-write_rds(knots, 'models/knots.rds')
+if(analysis != 'sensitivity') {
+  times <- 
+    df_vte %>% 
+    filter(status_1 == 1, surg_cont == 1) %>% 
+    pull(time_1)
+  
+  ### Quantiles on the time scale of when events are happening
+  knots <- 
+    map(c(2:8), ~{
+      probs <- seq(0, 1, length.out = .x + 1)
+      probs <- probs[probs > 0 & probs < 1]
+      quantile(times, probs)
+    })
+  names(knots) <- as.character(2:8)
+  
+  write_rds(knots, 'models/knots.rds')
+} else {
+  times <- 
+    df_vte %>% 
+    filter(status_1_sens == 1, surg_cont == 1) %>% 
+    pull(time_1)
+  
+  ### Quantiles on the time scale of when events are happening
+  knots <- 
+    map(c(2:8), ~{
+      probs <- seq(0, 1, length.out = .x + 1)
+      probs <- probs[probs > 0 & probs < 1]
+      quantile(times, probs)
+    })
+  names(knots) <- as.character(2:8)
+  
+  write_rds(knots, 'models/knots_sens.rds') 
+}
 
 ### For Development Use a sub-sample of the data
 if(size == 'small') {
@@ -246,7 +261,7 @@ if(fit_id == 1) {
   cat('NS 6\n')
   model_1_ns6 <- coxph(formula_1, data = df_1, tt = function(x, t, ...) { x * ns(t, df = 6, knots = knots[['6']]) })
   gc()
-
+  
   
   models_1 <- 
     list(model_1_ph, model_1_logt, model_1_ns1, 
@@ -322,7 +337,7 @@ if(fit_id == 1) {
   cat('NS 6\n')
   model_3_ns6 <- coxph(formula_3, data = df_3, tt = function(x, t, ...) { x * ns(t, df = 6, knots = knots[['6']]) })
   gc()
- 
+  
   models_3 <- 
     list(model_3_ph, model_3_logt, model_3_ns1, 
          model_3_ns2, model_3_ns3, model_3_ns4,
