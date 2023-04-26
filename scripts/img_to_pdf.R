@@ -15,5 +15,9 @@ img_to_pdf(fig_dir = 'figures/models/hte_bmi', outfile = 'plots.pdf')
 img_to_pdf(fig_dir = 'figures/models/hte_age', outfile = 'plots.pdf')
 img_to_pdf(fig_dir = 'figures/models/hte_sex', outfile = 'plots.pdf')
 img_to_pdf(fig_dir = 'figures/models/hte_race', outfile = 'plots.pdf')
-img_to_pdf(fig_dir = 'figures/models/hte_race_filtered', outfile = 'plots.pdf')
 img_to_pdf(fig_dir = 'figures/models/white_subgroup', outfile = 'plots.pdf')
+
+### Copy Changes to Dropbox
+fs::dir_copy(path = 'figures/', 
+             new_path = '~/Dropbox (Harvard University)/Haneuse/durable_vte/', 
+             overwrite = T)

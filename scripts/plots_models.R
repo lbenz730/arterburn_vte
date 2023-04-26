@@ -18,7 +18,7 @@ model_plots <- function(size, analysis,
   }
   
   ### Load Data
-  df_vte <- load_vte_data(local = F)
+  df_vte <- load_vte_data(local = !file.exists('data/vte_data.sas7bdat'))
   if(analysis != 'sensitivity') {
     knots <- read_rds('models/knots.rds')
   } else {
@@ -138,9 +138,8 @@ model_plots <- function(size, analysis,
     scale_color_discrete(labels = interaction_labs) +
     scale_fill_discrete(labels = interaction_labs) +
     labs(x = 'Time since Index Date (Years)',
-         y = 'Surgery HR(t)\n(Log Scale)',
-         title = paste('Hazard Ratio for Surgery Over Time',
-                       'First VTE Event', sep = '\n'),
+         y = 'Surgery Hazard Ratio',
+         title = 'Hazard Ratio for Surgery Over Time',
          subtitle = sub_title,
          col = '',
          fill = '') +
@@ -161,9 +160,8 @@ model_plots <- function(size, analysis,
     scale_color_discrete(labels = interaction_labs) +
     scale_fill_discrete(labels = interaction_labs) +
     labs(x = 'Time since Index Date (Years)',
-         y = 'Surgery HR(t)\n(Log Scale)',
-         title = paste('Hazard Ratio for Surgery Over Time',
-                       'PE (w/ or w/out DVT)', sep = '\n'),
+         y = 'Surgery Hazard Ratio',
+         title = 'Hazard Ratio for Surgery Over Time',
          subtitle = sub_title,
          col = '',
          fill = '') +
@@ -175,11 +173,13 @@ model_plots <- function(size, analysis,
     bind_rows(df_log_hr) %>% 
     inner_join(df_summary,  by = c("model", "outcome")) %>% 
     group_by(outcome) %>% 
-    filter(aic == min(aic)) %>% 
-    ungroup()
+    filter(bic == min(bic)) %>% 
+    ungroup() %>% 
+    mutate('outcome' = gsub('^\\(\\d+\\)\\s+', '', outcome))
   
   if(!interaction) {
-    ggplot(bind_rows(df_log_hr), aes(x = time, y = log_hr)) + 
+    ggplot(bind_rows(df_log_hr) %>% mutate('outcome' = gsub('^\\(\\d+\\)\\s+', '', outcome)), 
+           aes(x = time, y = log_hr)) + 
       facet_wrap(~model) + 
       geom_hline(yintercept = 0, lty = 2, col = 'black') + 
       geom_ribbon(aes(ymin = log_hr - 1.96 * std_err, ymax = log_hr + 1.96 * std_err, fill = outcome), alpha = 0.1) +
@@ -189,9 +189,8 @@ model_plots <- function(size, analysis,
                          breaks = c(0:10) * 365.25) + 
       scale_y_continuous(breaks = seq(-2, 4, 1), labels = function(x) { sprintf('%0.1f', exp(x)) }) +
       labs(x = 'Time since Index Date (Years)',
-           y = 'Surgery HR(t)\n(Log Scale)',
-           title = paste('Hazard Ratio for Surgery Over Time',
-                         'Comparison by Outcome', sep = '\n'),
+           y = 'Surgery Hazard Ratio',
+           title = 'Hazard Ratio for Surgery Over Time',
            subtitle = sub_title,
            fill = 'Outcome',
            color = 'Outcome')
@@ -206,9 +205,8 @@ model_plots <- function(size, analysis,
                          breaks = c(0:10) * 365.25) + 
       scale_y_continuous(breaks = seq(-2, 4, 1), labels = function(x) { sprintf('%0.1f', exp(x)) }) +
       labs(x = 'Time since Index Date (Years)',
-           y = 'Surgery HR(t)\n(Log Scale)',
-           title = paste('Hazard Ratio for Surgery Over Time',
-                         'Comparison by Outcome (Best Models)', sep = '\n'),
+           y = 'Surgery Hazard Ratio',
+           title = 'Hazard Ratio for Surgery Over Time',
            subtitle = sub_title,
            fill = 'Outcome',
            color = 'Outcome')
@@ -240,7 +238,7 @@ model_plots <- function(size, analysis,
 model_plots(size = 'full', 
             analysis = 'main', 
             interaction = F,
-            sub_title = 'Primary Analysis: VTE Defined Using ICD-9 Codes')
+            sub_title = NULL)
 
 ### Sensitivity Analysis
 model_plots(size = 'full', 
@@ -274,5 +272,10 @@ model_plots(size = 'full',
 model_plots(size = 'full',
             analysis = 'hte_race',
             interaction = T, 
-            interaction_labs = c('Non-Hispanic Black', 'Hispanic', 'Other/Unknown', 'Non-Hispanic White'),
+            interaction_labs = c('Non-Hispanic Black', 'Hispanic', 'Other', 'Unknown', 'Non-Hispanic White'),
             sub_title = 'Secondary Analyis: Treatment Effect Heterogenity by Race/Ethnicity')
+
+model_plots(size = 'full',
+            analysis = 'white_subgroup',
+            interaction = F, 
+            sub_title = 'Subgroup Analyis: Non-Hispanic White Subpopulation')

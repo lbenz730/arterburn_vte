@@ -40,12 +40,14 @@ if(analysis != 'sensitivity') {
   outcome_3 <- c('time_3_sens', 'status_3_sens') 
 }
 
-### Primary Analysis
-### Formula's for interactions w/ time
+
 if(!dir.exists(glue('models/{analysis}'))) {
   dir.create(glue('models/{analysis}'))
 }
 
+
+### Formula's for interactions w/ time
+### Primary Analysis
 if(analysis == 'main') {
   cat('Main Analysis\n')
   formula_1 <- 
@@ -175,7 +177,28 @@ if(analysis == 'main') {
   
   cox_formula_3 <- 
     as.formula(Surv(time_3, status_3) ~ surg_cont + raceeth:surg_cont + .)
-} 
+} else if(analysis == 'white_subgroup') {
+  cat('White Subgroup Analysis\n')
+  matching_vars <- setdiff(matching_vars, 'raceeth')
+  
+  formula_1 <- 
+    as.formula(Surv(time_1, status_1) ~ 
+                 surg_cont + tt(surg_cont) + 
+                 site + age + bmi + GENDER + diabetes + insulin + 
+                 elix_cat + util_count + dysl + Smoking2 + htn_dx + ht_index + oc_index)
+  
+  cox_formula_1 <- 
+    as.formula(Surv(time_1, status_1) ~ .)
+  
+  formula_3 <- 
+    as.formula(Surv(time_3, status_3) ~ 
+                 surg_cont + tt(surg_cont) + 
+                 site + age + bmi + GENDER + diabetes + insulin + 
+                 elix_cat + util_count + dysl + Smoking2 + htn_dx + ht_index + oc_index)
+  
+  cox_formula_3 <- 
+    as.formula(Surv(time_3, status_3) ~ .) 
+}
 
 ### Model Descriptions
 desc <- 
@@ -227,6 +250,13 @@ if(size == 'small') {
     group_by(status_1, status_3, surg_cont) %>% 
     slice(sample(1:n(), pct_small * n())) %>% 
     ungroup()
+}
+
+### White Subgroup Analysis
+if(analysis == 'white_subgroup') {
+ df_vte <- 
+   df_vte %>% 
+   filter(raceeth == 'White')
 }
 
 ### (1) Any VTE

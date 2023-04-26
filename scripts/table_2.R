@@ -6,7 +6,7 @@ source('scripts/load_data.R')
 source('scripts/plot_helpers.R')
 
 ### Event Rates 
-df_vte <- load_vte_data()
+df_vte <- load_vte_data(local = !file.exists('data/vte_data.sas7bdat'))
 knots <- read_rds('models/knots.rds')
 knots_sens <- read_rds('models/knots_sens.rds')
 
@@ -36,11 +36,11 @@ df_summary_sens <-
             'rate' = n_events/person_years * 100) %>% 
   ungroup()
 
-### Hazard Ratio @ 1 and 5 Years
+### Hazard Ratio @ 1 and 5 Years and 30
 hr_best <- 
   get_hr_best(size = 'full',
               analysis = 'main',
-              eval_times = round(365.25 * c(1, 5)),
+              eval_times = round(c(30, 365.25 * c(1, 5))),
               knots = knots) %>% 
   mutate('hr' = exp(log_hr), 
          'lower' = exp(log_hr - 1.96 * std_err),
@@ -50,17 +50,18 @@ hr_best <-
   select(outcome, time, hr, ci_95, p_value) %>% 
   pivot_wider(names_from = 'time',
               values_from = c('hr', 'ci_95', 'p_value')) %>% 
-  select(outcome, ends_with('1'), ends_with('5')) %>% 
+  select(outcome, ends_with('0'), ends_with('1'), ends_with('5')) %>% 
   mutate('outcome' = c('Any VTE', 'PE'))
 
 df_summary <- 
   df_summary %>% 
   inner_join(hr_best, by = 'outcome')
 
+### Hazard Ratio @ 1 and 5 Years and 30
 hr_best_sens <- 
   get_hr_best(size = 'full',
               analysis = 'sensitivity',
-              eval_times = round(365.25 * c(1, 5)),
+              eval_times = round(c(30, 365.25 * c(1, 5))),
               knots = knots_sens) %>% 
   mutate('hr' = exp(log_hr), 
          'lower' = exp(log_hr - 1.96 * std_err),
@@ -70,7 +71,7 @@ hr_best_sens <-
   select(outcome, time, hr, ci_95, p_value) %>% 
   pivot_wider(names_from = 'time',
               values_from = c('hr', 'ci_95', 'p_value')) %>% 
-  select(outcome, ends_with('1'), ends_with('5')) %>% 
+  select(outcome, ends_with('0'), ends_with('1'), ends_with('5')) %>%
   mutate('outcome' = c('Any VTE', 'PE'))
 
 
@@ -91,11 +92,12 @@ table_2 <-
   group_by(defn) %>% 
   gt() %>% 
   cols_align(align = "center", columns = everything()) %>% 
+  tab_spanner(columns = ends_with('_0'), label = '30 Days Post Index Date') %>% 
   tab_spanner(columns = ends_with('_1'), label = '1 Year Post Index Date') %>% 
   tab_spanner(columns = ends_with('_5'), label = '5 Years Post Index Date') %>% 
   fmt_number(columns = c('rate'), decimals = 3, sep_mark = '') %>% 
-  fmt_number(columns = c('hr_1', 'hr_5'), decimals = 2, sep_mark = '') %>% 
-  fmt_number(columns = c('p_value_1', 'p_value_5'), sep_mark = '', decimals = 3) %>% 
+  fmt_number(columns = c('hr_0', 'hr_1', 'hr_5'), decimals = 2, sep_mark = '') %>% 
+  fmt_number(columns = c('p_value_0', 'p_value_1', 'p_value_5'), sep_mark = '', decimals = 3) %>% 
   fmt_number(columns = c('person_years', 'n_events'), sep_mark = ',', decimals = 0, drop_trailing_zeros = T) %>% 
   tab_options(column_labels.font.size = 16,
               heading.title.font.size = 20,
@@ -108,6 +110,9 @@ table_2 <-
              'person_years' = 'Person-Years',
              'n_events' = '# of Events',
              'rate' = 'Rate/100-Pys',
+             'hr_0' = 'Adjusted HR',
+             'ci_95_0' = '95% CI',
+             'p_value_0' = 'p-value',
              'hr_1' = 'Adjusted HR',
              'ci_95_1' = '95% CI',
              'p_value_1' = 'p-value',
@@ -115,7 +120,7 @@ table_2 <-
              'ci_95_5' = '95% CI',
              'p_value_5' = 'p-value') %>% 
   tab_header(title = 'Table 2: Long-term risk of incident VTE among bariatric surgery patients in relation to severely obese patients who did not undergo bariatric surgery') 
-gtsave(table_2, 'figures/tables/table_2.png') 
+gtsave(table_2, 'figures/tables/table_2.png', vwidth = 1500, vheight = 800)
 
 ### Table 3 Event Rates by Surgery Type 
 df_event_rate_bs <- 
