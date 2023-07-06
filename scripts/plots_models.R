@@ -114,7 +114,7 @@ model_plots <- function(size, analysis,
     tab_header(title = 'Model Comparison',
                subtitle = sub_title) %>% 
     tab_source_note('Red: Best Model by BIC | Blue: Best Model by AIC | Purple: Best Model by BOTH metrics')
-    
+  
   
   gtsave(gt_summary, glue('figures/models/{analysis}/00_model_summary_table.png'))
   
@@ -225,6 +225,7 @@ model_plots <- function(size, analysis,
       scale_color_discrete(labels = interaction_labs) +
       scale_fill_discrete(labels = interaction_labs) +
       labs(x = 'Time since Index Date (Years)',
+           y = 'Surgery Hazard Ratio',
            title = paste('Hazard Ratio for Surgery Over Time',
                          'Comparison by Outcome (Best Models)', sep = '\n'),
            subtitle = sub_title,
