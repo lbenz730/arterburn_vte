@@ -8,8 +8,8 @@
 #SBATCH -e logs/log_big.stderr_%a ## STDERR
 #SBATCH --account=haneuse_lab
 
-module load R/4.1.0-fasrc01
-export R_LIBS_USER=$HOME/apps/R_4.1.0:$R_LIBS_USER
+module load R/4.2.2-fasrc01
+export R_LIBS_USER=$HOME/apps/R_4.2.2:$R_LIBS_USER
 
 cd $HOME/arterburn_vte
 

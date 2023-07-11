@@ -198,6 +198,27 @@ if(analysis == 'main') {
   
   cox_formula_3 <- 
     as.formula(Surv(time_3, status_3) ~ .) 
+} else if(analysis == 'black_subgroup') {
+  cat('Black Subgroup Analysis\n')
+  matching_vars <- setdiff(matching_vars, 'raceeth')
+  
+  formula_1 <- 
+    as.formula(Surv(time_1, status_1) ~ 
+                 surg_cont + tt(surg_cont) + 
+                 site + age + bmi + GENDER + diabetes + insulin + 
+                 elix_cat + util_count + dysl + Smoking2 + htn_dx + ht_index + oc_index)
+  
+  cox_formula_1 <- 
+    as.formula(Surv(time_1, status_1) ~ .)
+  
+  formula_3 <- 
+    as.formula(Surv(time_3, status_3) ~ 
+                 surg_cont + tt(surg_cont) + 
+                 site + age + bmi + GENDER + diabetes + insulin + 
+                 elix_cat + util_count + dysl + Smoking2 + htn_dx + ht_index + oc_index)
+  
+  cox_formula_3 <- 
+    as.formula(Surv(time_3, status_3) ~ .) 
 }
 
 ### Model Descriptions
@@ -257,6 +278,13 @@ if(analysis == 'white_subgroup') {
  df_vte <- 
    df_vte %>% 
    filter(raceeth == 'White')
+}
+
+### Black Subgroup Analysis
+if(analysis == 'black_subgroup') {
+  df_vte <- 
+    df_vte %>% 
+    filter(raceeth == 'Black')
 }
 
 ### (1) Any VTE

@@ -16,6 +16,7 @@ img_to_pdf(fig_dir = 'figures/models/hte_age', outfile = 'plots.pdf')
 img_to_pdf(fig_dir = 'figures/models/hte_sex', outfile = 'plots.pdf')
 img_to_pdf(fig_dir = 'figures/models/hte_race', outfile = 'plots.pdf')
 img_to_pdf(fig_dir = 'figures/models/white_subgroup', outfile = 'plots.pdf')
+img_to_pdf(fig_dir = 'figures/models/black_subgroup', outfile = 'plots.pdf')
 
 ### Copy Changes to Dropbox
 fs::dir_copy(path = 'figures/', 

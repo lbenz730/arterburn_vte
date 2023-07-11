@@ -280,3 +280,8 @@ model_plots(size = 'full',
             analysis = 'white_subgroup',
             interaction = F, 
             sub_title = 'Subgroup Analyis: Non-Hispanic White Subpopulation')
+
+model_plots(size = 'full',
+            analysis = 'black_subgroup',
+            interaction = F, 
+            sub_title = 'Subgroup Analyis: African-American Subpopulation')
