@@ -2,20 +2,32 @@ library(tidyverse)
 library(glue)
 library(gt)
 
-lik_ratio_test <- function(outcome, hte_var) {
+lik_ratio_test <- function(outcome, hte_var, time_interaction = NULL) {
   ### Read in Saved Out Model Fit Statistics
   df_main <- read_csv(glue('models/main/outcome_{outcome}_summary.csv'), col_types = cols())
   df_hte <- read_csv(glue('models/hte_{hte_var}/outcome_{outcome}_summary.csv'), col_types = cols())
   
-  ### Best Version of Main Model (BIC)
-  df_main <- 
-    df_main %>% 
-    filter(bic == min(bic))
   
-  ### Version of This Model for HTE Analysis 
-  df_hte <- 
-    df_hte %>% 
-    filter(model == df_main$model)
+  if(is.null(time_interaction)) {
+    ### Best Version of Main Model (BIC)
+    df_main <- 
+      df_main %>% 
+      filter(bic == min(bic))
+    
+    ### Version of This Model for HTE Analysis 
+    df_hte <- 
+      df_hte %>% 
+      filter(model == df_main$model)
+  } else {
+    ### Run a likelihood for a specific model 
+    df_main <- 
+      df_main %>% 
+      filter(model == time_interaction)
+    
+    df_hte <- 
+      df_hte %>% 
+      filter(model == time_interaction)
+  }
   
   ### LRT
   x <- -2 * (df_main$log_lik - df_hte$log_lik)
@@ -61,3 +73,32 @@ table_4 <-
              'p_value' = 'p-value') %>% 
   tab_header(title = 'Table 4: P-Values for Treatment Effect Heterogeneity')
 gtsave(table_4, 'figures/tables/table_4.png')  
+
+### Race log(t) interaction
+df_race <- 
+  bind_rows(
+    lik_ratio_test(outcome = 1, hte_var = 'race', time_interaction = 'Interaction with log(t)'),
+    lik_ratio_test(outcome = 3, hte_var = 'race', time_interaction = 'Interaction with log(t)')
+  )
+
+table_4b <- 
+  df_race %>% 
+  select(-variable) %>% 
+  gt() %>% 
+  cols_align(align = "center", columns = everything()) %>% 
+  fmt_number(columns = c('p_value'), decimals = 3, sep_mark = '') %>% 
+  fmt_number(columns = c('test_stat'), decimals = 1, sep_mark = '') %>% 
+  tab_options(column_labels.font.size = 16,
+              heading.title.font.size = 20,
+              heading.title.font.weight = 'bold',
+              heading.subtitle.font.weight = 'bold',
+              column_labels.font.weight = 'bold',
+              row_group.font.weight = 'bold',
+              row_group.font.size  = 12) %>% 
+  cols_label('outcome' = 'Outcome',
+             'n_param' = '# of Additional Parameters in Interaction Model',
+             'test_stat' = 'LR Statistic',
+             'p_value' = 'p-value') %>% 
+  tab_header(title = 'Table 4b: P-Values for Treatment Effect Heterogeneity by Race',
+             subtitle = 'Restriction to Model using Interaction w/ log(time)')
+gtsave(table_4b, 'figures/tables/table_4b.png')  
