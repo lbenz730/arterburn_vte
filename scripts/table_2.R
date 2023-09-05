@@ -20,7 +20,7 @@ df_summary <-
   group_by(outcome) %>% 
   summarise('person_years' = sum(time),
             'n_events' = sum(event),
-            'rate' = n_events/person_years * 100) %>% 
+            'rate' = n_events/person_years * 1000) %>% 
   ungroup()
 
 df_event_rate_sens <- 
@@ -33,7 +33,7 @@ df_summary_sens <-
   group_by(outcome) %>% 
   summarise('person_years' = sum(time),
             'n_events' = sum(event),
-            'rate' = n_events/person_years * 100) %>% 
+            'rate' = n_events/person_years * 1000) %>% 
   ungroup()
 
 ### Hazard Ratio @ 1 and 5 Years and 30
@@ -109,7 +109,7 @@ table_2 <-
   cols_label('outcome' = '',
              'person_years' = 'Person-Years',
              'n_events' = '# of Events',
-             'rate' = 'Rate/100-Pys',
+             'rate' = 'Rate/1000-Pys',
              'hr_0' = 'Adjusted HR',
              'ci_95_0' = '95% CI',
              'p_value_0' = 'p-value',
@@ -133,7 +133,7 @@ df_summary_bs <-
   group_by(outcome, bs_type) %>% 
   summarise('person_years' = sum(time),
             'n_events' = sum(event),
-            'rate' = n_events/person_years * 100) %>% 
+            'rate' = n_events/person_years * 1000) %>% 
   ungroup()
 
 table_3 <- 
@@ -153,6 +153,6 @@ table_3 <-
   cols_label('bs_type' = 'Surgery Group',
              'person_years' = 'Person-Years',
              'n_events' = '# of Events',
-             'rate' = 'Rate/100-Pys') %>% 
+             'rate' = 'Rate/1000-Pys') %>% 
   tab_header(title = 'Table 3: Event Rates of VTE by Surgery Type vs. Control')
 gtsave(table_3, 'figures/tables/table_3.png') 

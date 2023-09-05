@@ -101,3 +101,31 @@ ggplot(df_best , aes(x = time, y = log_hr)) +
        fill = '',
        color = '')
 ggsave('figures/models/hte_race/race_hr_no_CI.png', height = 9/1.2, width = 16/1.2)
+
+
+
+### Comparison of Main and Rate HTE models for log(t) Interaction
+df_race <- 
+  bind_rows(df_log_hr) %>% 
+  filter(model == 'Interaction with log(t)')
+
+
+ggplot(df_race , aes(x = time, y = log_hr)) + 
+  facet_wrap(~outcome, scales = 'free_y') + 
+  geom_hline(yintercept = 0, lty = 2, col = 'black') + 
+  # geom_ribbon(aes(ymin = log_hr - 1.96 * std_err, ymax = log_hr + 1.96 * std_err, fill = as.factor(interaction)), alpha = 0.1) +
+  geom_line(aes(col = as.factor(interaction))) + 
+  scale_x_continuous(limits = c(0, 10) * 365.25, 
+                     labels = function(x) {round(x/365.25)},
+                     breaks = c(0:10) * 365.25) + 
+  scale_y_continuous(breaks = seq(-2, 4, 1), labels = function(x) { sprintf('%0.1f', exp(x)) }) +
+  scale_color_discrete(labels = interaction_labs) +
+  scale_fill_discrete(labels = interaction_labs) +
+  labs(x = 'Time since Index Date (Years)',
+       y = 'Surgery Hazard Ratio',
+       title = paste('Hazard Ratio for Surgery Over Time',
+                     'Comparison by Outcome (Best Models from Main Analysis)', sep = '\n'),
+       subtitle = sub_title,
+       fill = '',
+       color = '')
+ggsave('figures/models/hte_race/logt_race_hr_no_CI.png', height = 9/1.2, width = 16/1.2)
