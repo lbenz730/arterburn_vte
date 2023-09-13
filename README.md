@@ -9,6 +9,7 @@ Code/Figures for VTE survival analysis for bariatric surgery with David Arterbur
 * __plot_helpers.R__: Helper functions for plotting, including extracting log hazard ratios and computing standard errors for time varying `surg_cont` variable
 * __plots_basic.R__: KM Curves
 * __plots_models.R__: Plots of $\log(HR(t))$ for `surg_cont`
+* __final_figures.R__: Final plots for the paper
 * __table_1.R__: Function to produce table_1 word document (Table 1.docx)
 * __table_2.R__: Script to generate table_2 (table_2.png)
 * __table_2_revised.R__: Script to generate table_2 (table_2.png)

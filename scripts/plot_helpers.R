@@ -10,6 +10,7 @@ theme_set(theme_bw() +
                   strip.text.y = element_text(size = 8),
                   plot.caption = element_text(size = 10),
                   legend.text = element_text(size = 12),
+                  axis.text = element_text(size = 12),
                   legend.position = "bottom"))
 
 ### Get HR as Functions of time for each model
@@ -224,10 +225,131 @@ get_hr_best <- function(size, analysis, eval_times, knots, interaction = F, n_le
     filter(time %in% eval_times) %>% 
     select(outcome, time, log_hr, std_err) %>% 
     mutate('time' = round(time/365.25))
-    
+  
   
   return(df_summary)
   
 }
 
+
+
+model_plots_final <- function(size, analysis, 
+                        interaction = F, 
+                        interaction_labs = NULL,
+                        sub_title = '') {
+
+  if(!dir.exists(glue('figures/models/{analysis}'))) {
+    dir.create(glue('figures/models/{analysis}'))
+  }
   
+  ### Load Data
+  df_vte <- load_vte_data(local = !file.exists('data/vte_data.sas7bdat'))
+  if(analysis != 'sensitivity') {
+    knots <- read_rds('models/knots.rds')
+  } else {
+    knots <- read_rds('models/knots_sens.rds')
+  }
+  
+  ### Define Matching Variables + Confounders
+  matching_vars <- 
+    c('site', 'age', 'bmi', 'GENDER', 'diabetes', 'raceeth', 
+      'insulin','elix_cat', 'util_count')
+  
+  confounders <- 
+    c('dysl', 'Smoking2', 'htn_dx', 'ht_index', 'oc_index')
+  
+  ### Define Time variables
+  time_vars <- 
+    c('index_date', 'pregnancy_date', 'cancer_date', 'eos_date',
+      'enr_end396', 'deathdt', 'dvt_date', 'pe_date', 'date_censor', 'date_censor_p')
+  
+  
+  ### Model Summaries
+  if(size == 'small') {
+    files <- dir(glue('models/{analysis}'), full.names = T)
+    model_files <- files[grepl('outcome.*_small.csv', files)]
+    hr_files <- files[grepl('hr.*_small.csv', files)]
+    cov_files <- files[grepl('cov.*_small.rds', files)]
+  } else {
+    files <- files <- dir(glue('models/{analysis}'), full.names = T)
+    model_files <- files[grepl('outcome.*\\d+_summary.csv', files)]
+    hr_files <- files[grepl('hr.*\\d+_summary.csv', files)]
+    cov_files <- files[grepl('cov.*\\d+.rds', files)]
+  }
+  
+  df_summary <- 
+    map_dfr(model_files, read_csv) %>% 
+    group_by(outcome) 
+  
+  df_hr <- 
+    map_dfr(hr_files, read_csv) %>% 
+    group_by(outcome) %>% 
+    group_split()
+  
+  cov_mats <- 
+    map(cov_files, read_rds)
+  
+  ### Get Log[HR(t)]
+  df_log_hr <- 
+    map2(df_hr, cov_mats, 
+         ~extract_hr(hr_summary = .x,
+                     cov_mat = .y,
+                     knots = knots,
+                     interaction = interaction, 
+                     n_levels = length(interaction_labs)))
+  
+  ### Model Fit Summary
+  best_by_group_aic <- 
+    mutate(df_summary, 'best' = aic == min(aic)) %>% 
+    pull(best) %>% 
+    which(.)
+  
+  best_by_group_bic <- 
+    mutate(df_summary, 'best' = bic == min(bic)) %>% 
+    pull(best) %>% 
+    which(.)
+  
+  df_best <- 
+    bind_rows(df_log_hr) %>% 
+    inner_join(df_summary,  by = c("model", "outcome")) %>% 
+    group_by(outcome) %>% 
+    filter(bic == min(bic)) %>% 
+    ungroup() %>% 
+    mutate('outcome' = gsub('^\\(\\d+\\)\\s+', '', outcome))
+  
+
+  
+  p1 <- 
+    ggplot(df_best %>% filter(outcome == 'Any VTE'), aes(x = time, y = log_hr)) + 
+    geom_hline(yintercept = 0, lty = 2, col = 'black') + 
+    geom_ribbon(aes(ymin = log_hr - 1.96 * std_err, ymax = log_hr + 1.96 * std_err), fill = 'purple', alpha = 0.1) +
+    geom_line(col = 'purple') + 
+    scale_x_continuous(limits = c(0, 10) * 365.25, 
+                       labels = function(x) {round(x/365.25)},
+                       breaks = c(0:10) * 365.25) + 
+    scale_y_continuous(breaks = seq(-2, 4, 1), labels = function(x) { sprintf('%0.1f', exp(x)) }) +
+    labs(x = 'Time since Index Date (Years)',
+         y = 'Surgery Hazard Ratio',
+         title = 'Hazard Ratio for Surgery Over Time',
+         subtitle = 'First VTE Event')
+  
+  p2 <- 
+    ggplot(df_best %>% filter(outcome == 'PE (w/ or w/out DVT)'), aes(x = time, y = log_hr)) + 
+    geom_hline(yintercept = 0, lty = 2, col = 'black') + 
+    geom_ribbon(aes(ymin = log_hr - 1.96 * std_err, ymax = log_hr + 1.96 * std_err), fill = 'purple', alpha = 0.1) +
+    geom_line(col = 'purple') + 
+    scale_x_continuous(limits = c(0, 10) * 365.25, 
+                       labels = function(x) {round(x/365.25)},
+                       breaks = c(0:10) * 365.25) + 
+    scale_y_continuous(breaks = seq(-2, 4, 1), labels = function(x) { sprintf('%0.1f', exp(x)) }) +
+    labs(x = 'Time since Index Date (Years)',
+         y = 'Surgery Hazard Ratio',
+         title = 'Hazard Ratio for Surgery Over Time',
+         subtitle = 'PE (w/ or w/out DVT)')
+  
+  
+  return(list('vte' = p1,
+              'pe' = p2))
+  
+  
+}

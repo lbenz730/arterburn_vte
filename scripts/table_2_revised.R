@@ -94,6 +94,7 @@ table_2 <-
   fmt_number(columns = c('hr'), decimals = 2, sep_mark = '') %>% 
   fmt_number(columns = c('p_value'), sep_mark = '', decimals = 3) %>%  
   fmt_number(columns = contains(c('person_years', 'n_events')), sep_mark = ',', decimals = 0, drop_trailing_zeros = T) %>% 
+  sub_small_vals(columns = 'p_value', threshold = 0.001) %>% 
   tab_options(column_labels.font.size = 16,
               heading.title.font.size = 20,
               heading.title.font.weight = 'bold',
@@ -103,11 +104,11 @@ table_2 <-
               row_group.font.size  = 12) %>% 
   cols_label('outcome' = '',
              'time_point' = '',
-             'person_years_cont' = 'Person-Years',
-             'n_events_cont' = '# of Events',
+             'person_years_cont' = 'Cumulative Person-Years',
+             'n_events_cont' = 'Cumulative # of Events',
              'rate_cont' = 'Rate/1000-Pys',
-             'person_years_surg' = 'Person-Years',
-             'n_events_surg' = '# of Events',
+             'person_years_surg' = 'Cumulative Person-Years',
+             'n_events_surg' = 'Cumulative # of Events',
              'rate_surg' = 'Rate/1000-Pys',
              'hr' = 'Adjusted HR',
              'ci_95' = '95% CI',
@@ -121,6 +122,7 @@ table_2 <-
                         'insulin use in the prior year, health care utilization in the 7-12 months prior to index date,',
                         'dyslipidemia, hypertension diagnoses, hypertension at index, use of oral contraceptives at index, and smoking status'))
 gtsave(table_2, 'figures/tables/table_2_revised.png', vwidth = 1500, vheight = 800)
+gtsave(table_2, 'figures/tables/table_2_revised.docx', vwidth = 1500, vheight = 800)
 
 
 df_event_rate_sens <- 
@@ -207,6 +209,7 @@ table_supp_1 <-
   fmt_number(columns = c('hr'), decimals = 2, sep_mark = '') %>% 
   fmt_number(columns = c('p_value'), sep_mark = '', decimals = 3) %>%  
   fmt_number(columns = contains(c('person_years', 'n_events')), sep_mark = ',', decimals = 0, drop_trailing_zeros = T) %>% 
+  sub_small_vals(columns = 'p_value', threshold = 0.001) %>% 
   tab_options(column_labels.font.size = 16,
               heading.title.font.size = 20,
               heading.subtitle.font.size = 18,
@@ -217,16 +220,16 @@ table_supp_1 <-
               row_group.font.size  = 12) %>% 
   cols_label('outcome' = '',
              'time_point' = '',
-             'person_years_cont' = 'Person-Years',
-             'n_events_cont' = '# of Events',
+             'person_years_cont' = 'Cumulative Person-Years',
+             'n_events_cont' = 'Cumulative # of Events',
              'rate_cont' = 'Rate/1000-Pys',
-             'person_years_surg' = 'Person-Years',
-             'n_events_surg' = '# of Events',
+             'person_years_surg' = 'Cumulative Person-Years',
+             'n_events_surg' = 'Cumulative # of Events',
              'rate_surg' = 'Rate/1000-Pys',
              'hr' = 'Adjusted HR',
              'ci_95' = '95% CI',
              'p_value' = 'p-value') %>% 
-  tab_header(title = 'Supplimentary Table 1: Long-term risk of incident VTE among bariatric surgery patients in relation to severely obese patients who did not undergo bariatric surgery',
+  tab_header(title = 'Supplementary Table 1: Long-term risk of incident VTE among bariatric surgery patients in relation to severely obese patients who did not undergo bariatric surgery',
              subtitle = 'VTE definied using ICD-9 codes and anticoagulation perscription fill')  %>% 
   tab_source_note('HR: Hazard Ratio, CI: Confidence Interval') %>% 
   tab_footnote( locations = cells_column_labels(columns = hr),
@@ -236,3 +239,4 @@ table_supp_1 <-
                         'insulin use in the prior year, health care utilization in the 7-12 months prior to index date,',
                         'dyslipidemia, hypertension diagnoses, hypertension at index, use of oral contraceptives at index, and smoking status'))
 gtsave(table_supp_1, 'figures/tables/table_supp_1.png', vwidth = 1500, vheight = 800)
+gtsave(table_supp_1, 'figures/tables/table_supp_1.docx', vwidth = 1500, vheight = 800)
