@@ -2,8 +2,10 @@ library(tidyverse)
 library(gt)
 library(glue)
 library(splines)
+library(EValue)
 source('scripts/load_data.R')
 source('scripts/plot_helpers.R')
+
 
 ### Event Rates 
 df_vte <- load_vte_data(local = !file.exists('data/vte_data.sas7bdat'))
@@ -240,3 +242,64 @@ table_supp_1 <-
                         'dyslipidemia, hypertension diagnoses, hypertension at index, use of oral contraceptives at index, and smoking status'))
 gtsave(table_supp_1, 'figures/tables/table_supp_1.png', vwidth = 1500, vheight = 800)
 gtsave(table_supp_1, 'figures/tables/table_supp_1.docx', vwidth = 1500, vheight = 800)
+
+
+### Evalues
+df_hr <- 
+  get_hr_best(size = 'full',
+              analysis = 'main',
+              eval_times = round(c(30, 365.25 * c(1, 5))),
+              knots = knots) %>% 
+  mutate('hr' = exp(log_hr), 
+         'lower' = exp(log_hr - 1.96 * std_err),
+         'upper' = exp(log_hr + 1.96 * std_err)) %>% 
+  mutate('ci_95' = paste0('(', sprintf('%0.2f', lower), ', ',  sprintf('%0.2f', upper), ')')) %>% 
+  mutate('outcome' = rep(c('Any VTE', 'PE'), each = 3),
+         'time' = rep(c('30 Days Post Index Date', '1 Year Post Index Date', '5 Years Post Index Date'), 2)) 
+
+
+df_hr$e_value <- NA
+df_hr$e_value_ci <- NA
+
+for(i in 1:nrow(df_hr)) {
+  df_evalue <- 
+    evalues.HR(est = df_hr$hr[i],
+               lo = df_hr$lower[i],
+               hi = df_hr$upper[i],
+               rare = 1)
+  
+  df_hr$e_value[i] <- df_evalue['E-values', 'point']
+  df_hr$e_value_ci[i] <- min(df_evalue['E-values', -1], na.rm = T)
+  
+}
+
+table_evalues <-            
+  df_hr %>% 
+  select(-log_hr, -std_err, -lower, -upper) %>% 
+  group_by(outcome) %>% 
+  gt() %>% 
+  cols_align(align = "center", columns = everything()) %>% 
+  fmt_number(columns = c('hr'), decimals = 2, sep_mark = '') %>% 
+  fmt_number(columns = contains('e_value'), sep_mark = '', decimals = 2) %>%  
+  tab_spanner(columns = contains('e_value'), label = 'E-Values') %>% 
+  tab_options(column_labels.font.size = 16,
+              heading.title.font.size = 20,
+              heading.title.font.weight = 'bold',
+              heading.subtitle.font.weight = 'bold',
+              column_labels.font.weight = 'bold',
+              row_group.font.weight = 'bold',
+              row_group.font.size  = 12) %>% 
+  cols_label('outcome' = '',
+             'time' = '',
+             'hr' = 'Adjusted HR',
+             'ci_95' = '95% CI',
+             'e_value' = 'Point Estimate',
+             'e_value_ci' = 'Conf. Interval') %>% 
+  tab_footnote( locations = cells_column_labels(columns = hr),
+                footnote = 
+                  paste('Adjusted for site of surgery, age, most recent BMI pre-index, sex,',
+                        'diabetes status, race/ethnicity, Charlson/Elixhauser comordbity score,', 
+                        'insulin use in the prior year, health care utilization in the 7-12 months prior to index date,',
+                        'dyslipidemia, hypertension diagnoses, hypertension at index, use of oral contraceptives at index, and smoking status'))
+
+gtsave(table_evalues, 'figures/tables/evalues.png', vwidth = 1500, vheight = 800)
