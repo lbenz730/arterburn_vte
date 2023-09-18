@@ -122,7 +122,7 @@ table_2 <-
                   paste('Adjusted for site of surgery, age, most recent BMI pre-index, sex,',
                         'diabetes status, race/ethnicity, Charlson/Elixhauser comordbity score,', 
                         'insulin use in the prior year, health care utilization in the 7-12 months prior to index date,',
-                        'dyslipidemia, hypertension diagnoses, hypertension at index, use of oral contraceptives at index, and smoking status'))
+                        'dyslipidemia, hypertension diagnoses, hormone therapy usage at index, use of oral contraceptives at index, and smoking status'))
 gtsave(table_2, 'figures/tables/table_2_revised.png', vwidth = 1500, vheight = 800)
 gtsave(table_2, 'figures/tables/table_2_revised.docx', vwidth = 1500, vheight = 800)
 
@@ -239,7 +239,7 @@ table_supp_1 <-
                   paste('Adjusted for site of surgery, age, most recent BMI pre-index, sex,',
                         'diabetes status, race/ethnicity, Charlson/Elixhauser comordbity score,', 
                         'insulin use in the prior year, health care utilization in the 7-12 months prior to index date,',
-                        'dyslipidemia, hypertension diagnoses, hypertension at index, use of oral contraceptives at index, and smoking status'))
+                        'dyslipidemia, hypertension diagnoses, hormone therapy usage at index, use of oral contraceptives at index, and smoking status'))
 gtsave(table_supp_1, 'figures/tables/table_supp_1.png', vwidth = 1500, vheight = 800)
 gtsave(table_supp_1, 'figures/tables/table_supp_1.docx', vwidth = 1500, vheight = 800)
 
@@ -300,6 +300,8 @@ table_evalues <-
                   paste('Adjusted for site of surgery, age, most recent BMI pre-index, sex,',
                         'diabetes status, race/ethnicity, Charlson/Elixhauser comordbity score,', 
                         'insulin use in the prior year, health care utilization in the 7-12 months prior to index date,',
-                        'dyslipidemia, hypertension diagnoses, hypertension at index, use of oral contraceptives at index, and smoking status'))
+                        'dyslipidemia, hypertension diagnoses, hormone therapy usage at index, use of oral contraceptives at index, and smoking status'))
 
 gtsave(table_evalues, 'figures/tables/evalues.png', vwidth = 1500, vheight = 800)
+gtsave(table_evalues, 'figures/tables/evalues.docx', vwidth = 1500, vheight = 800)
+
