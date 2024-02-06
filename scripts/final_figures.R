@@ -45,15 +45,17 @@ p1 <-
   ggsurvplot(survfit(Surv(time_1/365.25, status_1) ~ surg_cont, data = df_1),
              data = df_1,
              pval = T,
-             pval.coord = c(3000/365.25, 0.99),
-             conf.int = T,
-             ylim = c(0.925, 1),
+             pval.coord = c(3000/365.25, 0.01),
+             conf.int = F, 
+             fun = 'event',
+             palette = c('orange', 'skyblue'),
+             ylim = c(0, 0.06),
              legend.title = "",
              legend = 'bottom',
              legend.labs = c("Control", "Surgey"),
              xlab = 'Time since Index Date (Years)',
-             ylab = 'Survival Probability',
-             title = 'Kaplan-Meier Survival Curves',
+             ylab = 'Cumulative Incidence',
+             title = 'Kaplan-Meier Cumulative Incidence Curves',
              subtitle = 'Time to First VTE Event',
              ggtheme = 
                theme(plot.title = element_text(hjust = 0.5, size = 24),
@@ -65,21 +67,25 @@ p1 <-
                      plot.caption = element_text(size = 10),
                      legend.text = element_text(size = 12))) %>% 
   pluck('plot') +
-  scale_x_continuous(breaks = 0:10)
+  scale_x_continuous(breaks = 0:10) + 
+  scale_y_continuous(breaks = seq(0, 0.06, 0.01), labels = scales::percent)
 
 
 p2 <- 
   ggsurvplot(survfit(Surv(time_3/365.25, status_3) ~ surg_cont, data = df_3),
              data = df_3,
              pval = T,
-             pval.coord = c(3000/365.25, 0.99),
-             conf.int = T,
-             ylim = c(0.925, 1),
+             pval.coord = c(3000/365.25, 0.005),
+             conf.int = F,
+             fun = 'event',
+             ylim = c(0, 0.03),
+             palette = c('orange', 'skyblue'),
              legend.title = "",
              legend = 'bottom',
              legend.labs = c("Control", "Surgey"),
+             title = 'Kaplan-Meier Cumulative Incidence Curves',
              xlab = 'Time since Index Date (Years)',
-             title = 'Kaplan-Meier Survival Curves',
+             ylab = 'Cumulative Incidence',
              subtitle = 'Time to PE (w/ or w/out DVT)',
              ggtheme =             
                theme(plot.title = element_text(hjust = 0.5, size = 24),
@@ -91,7 +97,8 @@ p2 <-
                      plot.caption = element_text(size = 10),
                      legend.text = element_text(size = 12))) %>% 
   pluck('plot') +
-  scale_x_continuous(breaks = 0:10) 
+  scale_x_continuous(breaks = 0:10) + 
+  scale_y_continuous(breaks = seq(0, 0.03, 0.01), labels = scales::percent)
 
 
 hr_plots <- 
@@ -126,15 +133,17 @@ p1 <-
   ggsurvplot(survfit(Surv(time_1_sens/365.25, status_1_sens) ~ surg_cont, data = df_1),
              data = df_1,
              pval = T,
-             pval.coord = c(3000/365.25, 0.99),
-             conf.int = T,
-             ylim = c(0.925, 1),
+             pval.coord = c(3000/365.25, 0.01),
+             conf.int = F, 
+             fun = 'event',
+             palette = c('orange', 'skyblue'),
+             ylim = c(0, 0.04),
              legend.title = "",
              legend = 'bottom',
              legend.labs = c("Control", "Surgey"),
              xlab = 'Time since Index Date (Years)',
-             ylab = 'Survival Probability',
-             title = 'Kaplan-Meier Survival Curves',
+             ylab = 'Cumulative Incidence',
+             title = 'Kaplan-Meier Cumulative Incidence Curves',
              subtitle = 'Time to First VTE Event',
              ggtheme = 
                theme(plot.title = element_text(hjust = 0.5, size = 24),
@@ -146,21 +155,25 @@ p1 <-
                      plot.caption = element_text(size = 10),
                      legend.text = element_text(size = 12))) %>% 
   pluck('plot') +
-  scale_x_continuous(breaks = 0:10)
+  scale_x_continuous(breaks = 0:10) + 
+  scale_y_continuous(breaks = seq(0, 0.04, 0.01), labels = scales::percent)
 
 
 p2 <- 
   ggsurvplot(survfit(Surv(time_3_sens/365.25, status_3_sens) ~ surg_cont, data = df_3),
              data = df_3,
              pval = T,
-             pval.coord = c(3000/365.25, 0.99),
-             conf.int = T,
-             ylim = c(0.925, 1),
+             pval.coord = c(3000/365.25, 0.005),
+             conf.int = F,
+             fun = 'event',
+             ylim = c(0, 0.03),
+             palette = c('orange', 'skyblue'),
              legend.title = "",
              legend = 'bottom',
              legend.labs = c("Control", "Surgey"),
+             title = 'Kaplan-Meier Cumulative Incidence Curves',
              xlab = 'Time since Index Date (Years)',
-             title = 'Kaplan-Meier Survival Curves',
+             ylab = 'Cumulative Incidence',
              subtitle = 'Time to PE (w/ or w/out DVT)',
              ggtheme =             
                theme(plot.title = element_text(hjust = 0.5, size = 24),
@@ -172,7 +185,8 @@ p2 <-
                      plot.caption = element_text(size = 10),
                      legend.text = element_text(size = 12))) %>% 
   pluck('plot') +
-  scale_x_continuous(breaks = 0:10) 
+  scale_x_continuous(breaks = 0:10) + 
+  scale_y_continuous(breaks = seq(0, 0.03, 0.01), labels = scales::percent)
 
 
 hr_plots <- 
