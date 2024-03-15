@@ -109,6 +109,7 @@ hr_plots <-
 
 (p1 + hr_plots$vte)/(p2 + hr_plots$pe)
 ggsave('figures/main_paper_figure.png', height = 9, width = 16)
+ggsave('figures/main_paper_figure.tiff', height = 9, width = 16)
 
 
 
@@ -197,3 +198,4 @@ hr_plots <-
 
 (p1 + hr_plots$vte)/(p2 + hr_plots$pe)
 ggsave('figures/supplementary_figure.png', height = 9, width = 16)
+ggsave('figures/supplementary_figure.tiff', height = 9, width = 16)
