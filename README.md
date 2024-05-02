@@ -1,5 +1,7 @@
 # VTE Bariatric Surgery Project
-Code/Figures for VTE survival analysis for bariatric surgery with David Arterburn, Laura Harrington, and Sebastien Haneuse
+Code for the paper:
+
+Harrington, L., Benz, L., Haneuse, S., Johnson, E., Coleman, K., Courcolas, A., Li, R., Theis, MK., Liu, L., Cooper, J., Chin, P., Grinberg, G., Daigle, C., Chang, J., Um, S., Yenumula, P., Zelada, J., Smith, N., Arterburn, D. ”Bariatric Surgery and the Long-Term Risk of Venous Thromboembolism in a Population-Based Cohort of Severely Obese Adults.” _Obesity Surgery_, 2024. [Link](https://link.springer.com/article/10.1007/s11695-024-07236-y)
 
 
 # R Scripts (`scripts/`)
